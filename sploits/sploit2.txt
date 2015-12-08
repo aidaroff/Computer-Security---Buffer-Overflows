@@ -1,0 +1,17 @@
+Use this file to explain how your sploit2 works.
+
+Author Alibek Aidarov aaidarov@ucsd.edu 
+
+First I figured out the size of MAX_WIDGETS by forcing the program to segfault. 
+The value turned out to be 897. Now, after figuring out that struct widget_t is 32 bytes (call sizeof(struct widget_t)),
+we can deduce that maximum length of struct array in bytes is 897 * 32 = 28704. 
+So because of if statement in target2 we probably cannot write more than 28704 bytes, can we?
+It turns out, we can use basic integer overflows. 
+Vulnerability here is pass in such a count that multiplied by 32 will give a slightly larger value than 28704 that we write more to the buffer than alllowed. 
+Then it's a matter of getting that special value for count. And that value is 
+-2147482750. I found this by running in gdb the following command
+(gdb) set count = -2147482750
+(gdb) call count * 32
+This gets us 28736. Enough to overflow. 
+After that we copy our shellcode starting 12th byte in arg1, because the first 
+12 bytes are for char array "-2147482750," of size 12 bytes. And finally we add exactly 897*32 plus 12 bytes accounting for the string above (which gives us 28720) to get link register and point it to buf' addr. 

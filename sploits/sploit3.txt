@@ -1,0 +1,18 @@
+Use this file to explain how your sploit3 works.
+
+Author Alibek Aidarov aaidarov@ucsd.edu
+
+For target3 vulnerability we need to pay attention to both strcpy and virtual table pointers in C. 
+Object str has some vtable, address of which we can find by running info vtbl str in gdb. 
+There are four entries in that vtable which is simply an array of pointers. And when we call
+methods of str such getLen() or getStart(), vtable pointer is used to find which entry in vtable
+these methods correspond to, and where the address of instructions is. 
+x buf and info vtbl str gives us necessary information to code this sploit. There are 132 bytes of distance
+between these two. That is why I created an arg1 of size 136 bytes. Since we need to get to strcpy method and
+not memcpy which limits how much we can write to the buffer, we supply necessary arg2 and arg3 so if statement
+evaluates to false. Now if we put the fourth entry in our own vtable to have the address where shellcode
+is,and we copy shellcode starting at that address (16th byte of buffer), when getLen gets executed, instead of
+getLen instructions, shellcode gets executed. 
+Big picture idea is that we're effectively making pointers in initial vtable to point to our own vtable (buf).
+We also don't have to worry about canaries protecting against stack smashing because they get checked on return
+and print_sub_string never returns.

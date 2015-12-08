@@ -1,0 +1,11 @@
+Use this file to explain how your sploit1 works.
+
+Author Alibek Aidarov aaidarov@ucsd.edu
+
+The main vulnerability here is also strcpy. 
+Similar to sploit0.c 
+The difference is in buf - link register size. In this case its 108 bytes. 
+And also the matter of examining variables both in bar and foo instead of just foo.
+Overall, flow of sploit is the same. We find the target, address of buf, and make ret
+to point to the beginning of buf where the shellcode is so it gets executed. We don't
+need to know what exactly T1BUFFER is as long as we know distance in bytes between lr and buf.

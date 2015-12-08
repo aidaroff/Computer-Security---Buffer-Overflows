@@ -1,0 +1,22 @@
+Use this file to explain how your sploit0 works.
+
+Author Alibek Aidarov aaidarov@ucsd.edu
+
+Vulnerability here is use of strcpy without checking the boundaries like strncpy. 
+By creating a larger buffer we can write past of buf[127].
+Difference between buf and link is 132. Link register is where our return address.
+By overwriting that address we can manipulate return address to be where we want our
+next instruction to be. In this case it's shellcode. We override this 132 bytes of distance
+and then 4 bytes more because we want to override ret as well. Playing around with the code actually
+shows that its not necessary to write over all 136 bytes as long as we put ret to point to the start
+of our buffer we're good. 
+Put shellcode in our buffer and make return address point 
+to buffer so on return shellcode is executed. variable target is where our buf is. 
+Our end goal is to open shell starting with # whoami should return root.	
+	HOW 132 is derived:
+	after running gdb -e ./sploit0 -s /tmp/target0
+	do catch exec
+	after exec was caught break at foo
+	step through the program until strcpy is reached
+	print out frame info, i f -> it must say that link reg is 0xbefffd44
+	0xbefffcc0 is buf
